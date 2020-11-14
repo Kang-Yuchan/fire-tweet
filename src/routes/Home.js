@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../components/App';
 import { db } from '../firebase';
 
 const Home = () => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
+  const userObj = useContext(UserContext);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     await db.collection("tweets").add({
-      tweet,
+      text: tweet,
       createdAt: Date.now(),
+      userId: userObj.uid,
     });
     setTweet("");
   } 
@@ -20,14 +23,15 @@ const Home = () => {
   }
 
   const getDbTweets = async () => {
-    const dbTweets =  await db.collection("tweets").get(); 
-    dbTweets.forEach((document) => {
-      const tweetDataObject = {
-        id: document.id,
-        ...document.data(),
-      };
-      setTweets((prev) => [tweetDataObject, ...prev]);
-    });
+    await db.collection("tweets").onSnapshot((snapshot) =>{
+      const tweetArray = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setTweets(tweetArray.sort((a, b) => {
+        return b.createdAt - a.createdAt;
+      }))
+    }); 
   };
 
   useEffect(() => {
@@ -42,7 +46,7 @@ const Home = () => {
       </form>
       {tweets.map((tweetData) => (
         <div key={tweetData.id}>
-          <span>{tweetData.tweet}</span>
+          <span>{tweetData.text}</span>
         </div>
       ))}
     </div>
