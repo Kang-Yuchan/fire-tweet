@@ -40,6 +40,7 @@ const Tweet = ({ tweetObj, isMyTweet }) => {
       ) : (
         <>
           <span>{tweetObj.text}</span>
+          {tweetObj.fileUrl && <img src={tweetObj.fileUrl} width="80px" height="80px" />}
           {isMyTweet && (
             <>
               <button type="button" onClick={onClickDelete}>Delete</button>
