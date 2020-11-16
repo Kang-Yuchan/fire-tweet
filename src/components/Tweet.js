@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 
 const Tweet = ({ tweetObj, isMyTweet }) => {
   const [isEditingMode, setIsEditingMode] = useState(false);
@@ -10,6 +10,7 @@ const Tweet = ({ tweetObj, isMyTweet }) => {
 
     if (confirm) {
       await db.doc(`tweets/${tweetObj.id}`).delete();
+      await storage.refFromURL(tweetObj.fileUrl).delete();
     }
   }
 
